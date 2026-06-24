@@ -8,7 +8,7 @@ const SCROLL_RESET_DELAY_MS = 300;
 const WAIT_TIMEOUT_MS = 5000;
 
 (async () => {
-  alert("v2")
+  console.log("Version 1.0.3")
   // Check that we are on the correct page
   if (!window.location.href.startsWith(COUPON_PAGE_URL)) {
     alert("Redirecting to the Price Chopper coupons page. Click the bookmark again once it loads.");
@@ -74,7 +74,7 @@ const WAIT_TIMEOUT_MS = 5000;
   }
 
   // Step 3: Done
-  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all coupons were clipped successfully.\nIf not, just click the bookmark again.`;
+  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all coupons were clipped successfully.\n\nIf not, just click the bookmark again.`;
   console.log(msg);
   alert(msg);
 })();
