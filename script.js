@@ -35,17 +35,19 @@ const WAIT_TIMEOUT_MS = 5000;
   });
 
   while (true) {
-    window.scrollTo(0, document.body.scrollHeight);
+    const indicator = document.querySelector(".e-1tpx6fl");
 
-    // Wait for the load indicator to appear after scrolling
-    const appeared = await waitFor(".e-1tpx6fl", SCROLL_DELAY_MS);
-
-    if (!appeared) {
-      // Load indicator did not appear, all coupons are loaded
+    if (!indicator) {
+      // Load indicator is not in the DOM, all coupons are loaded
       console.log("Reached end of coupon list.");
       break;
     }
 
+    // Scroll just enough to bring the load indicator into view
+    indicator.scrollIntoView();
+
+    // Wait for the load indicator to reappear after new content loads
+    await waitFor(".e-1tpx6fl", SCROLL_DELAY_MS);
     await new Promise(r => setTimeout(r, SCROLL_RESET_DELAY_MS));
   }
 
@@ -71,7 +73,7 @@ const WAIT_TIMEOUT_MS = 5000;
   }
 
   // Step 3: Done
-  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all were clipped successfully.\n\nIf not, just click the bookmark again.`;
+  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all coupons were clipped successfully.\nIf not, just click the bookmark again.`;
   console.log(msg);
   alert(msg);
 })();
