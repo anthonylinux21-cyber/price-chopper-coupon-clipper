@@ -1,11 +1,22 @@
 // Price Chopper Auto Coupon Clipper
+// Paste this into your browser's DevTools Console while on the Price Chopper coupons page.
 
+const COUPON_PAGE_URL = "https://shop.pricechopper.com/store/price-chopper-ny/pages/in-store-deals";
 const SCROLL_DELAY_MS = 800;
 const CLIP_DELAY_MS = 150;
 const SCROLL_RESET_DELAY_MS = 300;
 const WAIT_TIMEOUT_MS = 5000;
 
 (async () => {
+  // Check that we are on the correct page
+  if (!window.location.href.startsWith(COUPON_PAGE_URL)) {
+    alert("Redirecting to the Price Chopper coupons page. Click the bookmark again once it loads.");
+    window.location.href = COUPON_PAGE_URL;
+    return;
+  }
+
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
   // Step 1: Scroll down until all coupons are loaded
   console.log("Scrolling to load all coupons...");
 
@@ -60,7 +71,7 @@ const WAIT_TIMEOUT_MS = 5000;
   }
 
   // Step 3: Done
-  const msg = `Done!\n\nClipped: ${clipped} coupon(s)\nSkipped: ${skipped} (already clipped or unavailable)`;
+  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all were clipped successfully.\nIf not, just click the bookmark again.`;
   console.log(msg);
   alert(msg);
 })();
