@@ -8,13 +8,20 @@ const SCROLL_RESET_DELAY_MS = 300;
 const WAIT_TIMEOUT_MS = 5000;
 
 (async () => {
-  console.log("Version 1.0.3")
+  console.log("Version 1.1.0")
+
   // Check that we are on the correct page
   if (!window.location.href.startsWith(COUPON_PAGE_URL)) {
     alert("Redirecting to the Price Chopper coupons page. Click the bookmark again once it loads.");
     window.location.href = COUPON_PAGE_URL;
     return;
   }
+
+  // Wait for the page to fully load before doing anything
+  await new Promise(resolve => {
+    if (document.readyState === "complete") return resolve();
+    window.addEventListener("load", resolve, { once: true });
+  });
 
   const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
