@@ -1,14 +1,15 @@
 // Price Chopper Auto Coupon Clipper
-// Paste this into your browser's DevTools Console while on the Price Chopper coupons page.
 
 const COUPON_PAGE_URL = "https://shop.pricechopper.com/store/price-chopper-ny/pages/in-store-deals";
 const SCROLL_DELAY_MS = 800;
 const CLIP_DELAY_MS = 150;
 const SCROLL_RESET_DELAY_MS = 300;
 const WAIT_TIMEOUT_MS = 5000;
+const LOAD_INDICATOR_CLASS = ".e-1tpx6fl";
+const COUPON_BUTTON_CLASS = ".e-iei4ac";
 
 (async () => {
-  console.log("Version 1.1.0")
+  console.log("Version 1.2.0");
 
   // Check that we are on the correct page
   if (!window.location.href.startsWith(COUPON_PAGE_URL)) {
@@ -25,38 +26,46 @@ const WAIT_TIMEOUT_MS = 5000;
 
   const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-  // Step 1: Scroll down until all coupons are loaded
-  console.log("Scrolling to load all coupons...");
-
-  // Waits up to `timeout` ms for a selector to appear in the DOM
-  const waitFor = (selector, timeout = WAIT_TIMEOUT_MS) => new Promise(resolve => {
-    const found = document.querySelector(selector);
-    if (found) return resolve(true);
+  // Waits up to `timeout` ms for at least one element matching `selector` to have `text` as its innerText
+  const waitForText = (selector, text, timeout = WAIT_TIMEOUT_MS) => new Promise(resolve => {
+    const hasText = () => [...document.querySelectorAll(selector)].some(el => el.innerText.trim() === text);
+    if (hasText()) return resolve(true);
     const observer = new MutationObserver(() => {
-      if (document.querySelector(selector)) {
+      if (hasText()) {
         observer.disconnect();
         resolve(true);
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     setTimeout(() => { observer.disconnect(); resolve(false); }, timeout);
   });
 
-  while (true) {
-    const indicator = document.querySelector(".e-1tpx6fl");
+  // Wait for coupon buttons to appear and have their text rendered before proceeding
+  console.log("Waiting for coupons to appear...");
+  await waitForText(COUPON_BUTTON_CLASS, "Clip");
 
-    if (!indicator) {
-      // Load indicator is not in the DOM, all coupons are loaded
+  // Step 1: Scroll down until all coupons are loaded
+  console.log("Scrolling to load all coupons...");
+
+  let lastHeight = 0;
+  while (true) {
+    // If the load indicator is in the DOM, scroll to it; otherwise scroll to the bottom
+    const indicator = document.querySelector(LOAD_INDICATOR_CLASS);
+    if (indicator) {
+      indicator.scrollIntoView();
+    } else {
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    await new Promise(r => setTimeout(r, SCROLL_DELAY_MS));
+
+    // Stop when the page height has not grown after scrolling
+    const newHeight = document.body.scrollHeight;
+    if (newHeight === lastHeight) {
       console.log("Reached end of coupon list.");
       break;
     }
-
-    // Scroll just enough to bring the load indicator into view
-    indicator.scrollIntoView();
-
-    // Wait for the load indicator to reappear after new content loads
-    await waitFor(".e-1tpx6fl", SCROLL_DELAY_MS);
-    await new Promise(r => setTimeout(r, SCROLL_RESET_DELAY_MS));
+    lastHeight = newHeight;
   }
 
   // Scroll back to top before clipping
@@ -64,7 +73,7 @@ const WAIT_TIMEOUT_MS = 5000;
   await new Promise(r => setTimeout(r, SCROLL_RESET_DELAY_MS));
 
   // Step 2: Click every unclipped "Clip" button
-  const buttons = document.querySelectorAll(".e-iei4ac");
+  const buttons = document.querySelectorAll(COUPON_BUTTON_CLASS);
   let clipped = 0;
   let skipped = 0;
 
@@ -72,6 +81,7 @@ const WAIT_TIMEOUT_MS = 5000;
 
   for (const btn of buttons) {
     if (btn.innerText.trim() === "Clip") {
+      btn.scrollIntoView();
       btn.click();
       clipped++;
       await new Promise(r => setTimeout(r, CLIP_DELAY_MS));
