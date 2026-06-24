@@ -8,6 +8,7 @@ const SCROLL_RESET_DELAY_MS = 300;
 const WAIT_TIMEOUT_MS = 5000;
 
 (async () => {
+  alert("v2")
   // Check that we are on the correct page
   if (!window.location.href.startsWith(COUPON_PAGE_URL)) {
     alert("Redirecting to the Price Chopper coupons page. Click the bookmark again once it loads.");
