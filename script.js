@@ -71,7 +71,7 @@ const WAIT_TIMEOUT_MS = 5000;
   }
 
   // Step 3: Done
-  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all were clipped successfully.\nIf not, just click the bookmark again.`;
+  const msg = `Finished clipping ${plural(clipped, "coupon")}.\nSkipped ${plural(skipped, "coupon")} already clipped.\n\nReload the page and filter by "Clipped" to ensure that all were clipped successfully.\n\nIf not, just click the bookmark again.`;
   console.log(msg);
   alert(msg);
 })();
